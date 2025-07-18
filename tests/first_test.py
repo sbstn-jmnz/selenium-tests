@@ -6,7 +6,7 @@ def test_page_title():
   options = Options()
   options.headless = True
 
-  browser = webdriver.Firefox(options=options)
+  browser = webdriver.Chrome(options=options)
   
   browser.get('https://github.com')
 

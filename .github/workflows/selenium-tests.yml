@@ -1,17 +1,17 @@
-name: Selenium Firefox Tests
+name: Selenium Chrome Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -22,38 +22,23 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install selenium pytest pytest-html
 
-      - name: Install Firefox (non-Snap)
+      - name: Install Google Chrome (deb, no snap)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox \
-          libgtk-3-0 \
-          libdbus-glib-1-2 \
-          libx11-xcb1 \
-          libxcb-shm0 \
-          libxcb1 \
-          libxcomposite1 \
-          libxcursor1 \
-          libxdamage1 \
-          libxi6 \
-          libxtst6 \
-          libnss3 \
-          libxrandr2 \
-          libatk1.0-0 \
-          libatk-bridge2.0-0 \
-          libgtk-3-0 \
-          libdrm2 \
-          xdg-utils
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
-      - name: Install latest GeckoDriver
+      - name: Install matching ChromeDriver
         run: |
-          wget "https://github.com/mozilla/geckodriver/releases/download/v0.36.0/geckodriver-v0.36.0-linux64.tar.gz"
-          tar -xzf geckodriver-*.tar.gz
-          chmod +x geckodriver
-          sudo mv geckodriver /usr/local/bin/
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.version")
+          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$DRIVER_VERSION/linux64/chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
 
-      - name: Run tests with pytest and generate HTML report
+      - name: Run Selenium tests with Chrome
         run: |
           pytest tests/ --html=report.html
 
