@@ -1,49 +1,19 @@
-name: Selenium Chrome Tests
+name: Test
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
+        uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install selenium pytest pytest-html
-
-      - name: Install Google Chrome (deb, no snap)
+          pip install -r requirements.txt
+      - name: Run tests
         run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-
-      - name: Install matching ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.version")
-          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$DRIVER_VERSION/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
-          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-
-      - name: Run Selenium tests with Chrome
-        run: |
-          pytest tests/ --html=report.html
-
-      - name: Upload HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: selenium-report
-          path: report.html
+          pytest tests/
