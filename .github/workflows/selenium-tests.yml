@@ -1,4 +1,4 @@
-name: Selenium Tests
+name: Selenium Firefox Tests
 
 on:
   push:
@@ -9,11 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      xvfb:
-        image: selenium/standalone-firefox:latest
-        options: --shm-size=2g
 
     steps:
       - name: Checkout repo
@@ -29,15 +24,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install Firefox and GeckoDriver
+      - name: Install Firefox (non-Snap)
         run: |
           sudo apt-get update
           sudo apt-get install -y firefox
-          wget https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-linux64.tar.gz
-          tar -xzf geckodriver-linux64.tar.gz
+
+      - name: Install latest GeckoDriver
+        run: |
+          GECKO_LATEST=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep "tag_name" | cut -d '"' -f4)
+          wget "https://github.com/mozilla/geckodriver/releases/download/$GECKO_LATEST/geckodriver-$GECKO_LATEST-linux64.tar.gz"
+          tar -xzf geckodriver-*.tar.gz
+          chmod +x geckodriver
           sudo mv geckodriver /usr/local/bin/
 
-      - name: Run tests with pytest (headless Firefox)
+      - name: Run tests with pytest and generate HTML report
         run: |
-          Xvfb :99 & export DISPLAY=:99
-          pytest tests/
+          pytest tests/ --html=report.html
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-report
+          path: report.html
