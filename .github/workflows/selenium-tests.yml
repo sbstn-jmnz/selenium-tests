@@ -27,7 +27,25 @@ jobs:
       - name: Install Firefox (non-Snap)
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox
+          sudo apt-get install -y firefox \
+          libgtk-3-0 \
+          libdbus-glib-1-2 \
+          libasound2 \
+          libx11-xcb1 \
+          libxcb-shm0 \
+          libxcb1 \
+          libxcomposite1 \
+          libxcursor1 \
+          libxdamage1 \
+          libxi6 \
+          libxtst6 \
+          libnss3 \
+          libxrandr2 \
+          libatk1.0-0 \
+          libatk-bridge2.0-0 \
+          libgtk-3-0 \
+          libdrm2 \
+          xdg-utils
 
       - name: Install latest GeckoDriver
         run: |

@@ -1,9 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 def test_page_title():
-  browser = webdriver.Firefox(service=Service("/usr/local/bin/geckodriver"))
+  options = Options()
+  options.headless = True
+
+  browser = webdriver.Firefox(service=Service("/usr/local/bin/geckodriver"), options=options)
   
   browser.get('https://github.com')
 
